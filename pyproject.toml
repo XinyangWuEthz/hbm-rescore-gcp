@@ -1,0 +1,16 @@
+[project]
+name = "hbm-rescore-gcp"
+version = "0.1.0"
+description = "Re-score the published hiring-bias audit runs on GCP Cloud Run Jobs"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
