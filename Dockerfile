@@ -40,6 +40,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY --from=research /src/research /app/research
 COPY manifest /app/manifest
+COPY bq /app/bq
 COPY rescore /app/rescore
 # The manifest names the commit its runs are scored with; refuse an image that disagrees.
 RUN python -c "import json, sys; m = json.load(open('/app/manifest/runs.json')); \
