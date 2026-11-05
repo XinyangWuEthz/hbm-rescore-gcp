@@ -1,0 +1,54 @@
+# On every push to main: run CI, build the image, push it to Artifact Registry, and point
+# both Cloud Run jobs at the pushed digest. Authenticates through Workload Identity
+# Federation; the provider only accepts tokens from this repository's main branch.
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  REGION: us-central1
+  IMAGE: us-central1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/hbm/rescore
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+      - name: Build and push
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+          docker build --build-arg RESEARCH_COMMIT="$(jq -r .research_commit manifest/runs.json)" \
+            -t "$IMAGE:$GITHUB_SHA" .
+          docker push "$IMAGE:$GITHUB_SHA"
+          echo "DIGEST_REF=$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$GITHUB_SHA")" \
+            >> "$GITHUB_ENV"
+      - name: Point both jobs at the digest
+        run: |
+          for job in rescore collect; do
+            gcloud run jobs update "$job" --region "$REGION" --image "$DIGEST_REF" \
+              --update-env-vars "IMAGE_REF=$DIGEST_REF"
+          done
+          echo "Deployed \`$DIGEST_REF\`" >> "$GITHUB_STEP_SUMMARY"
