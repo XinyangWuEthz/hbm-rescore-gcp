@@ -24,7 +24,7 @@ from rescore.task import log_event, select_runs
 
 PROVENANCE_FIELDS = ("run_id", "run", "task_index", "task_attempt", "execution", "hf_repo",
                      "hf_revision", "research_commit", "image_ref", "started_at",
-                     "finished_at", "seconds")
+                     "finished_at", "seconds", "run_audit_returncode")
 SUMMARY_FIELDS = ("n_total", "n_decided", "refusal_rate", "parse_failure_rate",
                   "population_acceptance_rate", "attr_free_acceptance_rate",
                   "reference_agreement", "attr_free_reference_agreement",
@@ -44,11 +44,28 @@ class AlreadyLoaded(RuntimeError):
     pass
 
 
+class ProvenanceMismatch(ValueError):
+    pass
+
+
 def gather(run_root: Path, expected: list[str]) -> dict[str, Path]:
     missing = [run for run in expected if not (run_root / run / "provenance.json").is_file()]
     if missing:
         raise IncompleteRun(missing)
     return {run: run_root / run for run in expected}
+
+
+def check_provenance(provenances: dict[str, dict], manifest: dict) -> None:
+    """Every run of one RUN_ID must come from the manifest's pins and from one image."""
+    for run, prov in provenances.items():
+        for key in ("hf_repo", "hf_revision", "research_commit"):
+            if prov.get(key) != manifest[key]:
+                raise ProvenanceMismatch(
+                    f"{run}: {key} {prov.get(key)!r} != manifest {manifest[key]!r}")
+    images = sorted({str(p.get("image_ref")) for p in provenances.values()})
+    if len(images) > 1:
+        raise ProvenanceMismatch(f"runs of one RUN_ID were scored by {len(images)} images: "
+                                 f"{', '.join(images)}; re-score under a new RUN_ID")
 
 
 def _clean(value):
@@ -147,12 +164,15 @@ def main() -> int:
         run_root = output_dir / "runs" / run_id
         dirs = gather(run_root, expected)
 
+        provenances = {run: _read(d / "provenance.json") for run, d in dirs.items()}
+        check_provenance(provenances, manifest)
+
         runs, drift = [], []
         for run, d in dirs.items():
             result = _read(d / "result.json")
             committed = _read(research_dir / "eval" / "results" / f"{run}.json")
             diffs = compare(committed, result)
-            runs.append(run_row(result, _read(d / "provenance.json"), diffs))
+            runs.append(run_row(result, provenances[run], diffs))
             drift.extend(drift_rows(run_id, run, diffs))
         tables = run_root / "_tables"
         _write_jsonl(runs, tables / "runs.jsonl")

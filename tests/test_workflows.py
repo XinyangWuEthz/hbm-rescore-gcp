@@ -54,3 +54,19 @@ def test_deploy_runs_ci_first():
     jobs = load("deploy.yml")["jobs"]
     assert jobs["ci"]["uses"] == "./.github/workflows/ci.yml"
     assert jobs["deploy"]["needs"] == "ci"
+
+
+SQL_ARG = re.compile(r"""\"\$\(sed '/\^--/d' (bq/[\w.]+\.sql)\)\"""")
+
+
+def test_bq_never_sees_a_leading_sql_comment():
+    # bq parses flags with absl, which reads an argument starting with "--" as a flag even
+    # after positional arguments, so the comment header of each .sql file must be stripped.
+    text = (WORKFLOWS / "run.yml").read_text(encoding="utf-8")
+    files = SQL_ARG.findall(text)
+    assert len(files) == text.count("bq query") == 2
+    root = WORKFLOWS.parents[1]
+    for name in files:
+        stripped = "\n".join(line for line in (root / name).read_text().splitlines()
+                             if not line.startswith("--"))
+        assert stripped.lstrip().startswith("SELECT"), name

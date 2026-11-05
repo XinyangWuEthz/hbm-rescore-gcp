@@ -1,5 +1,5 @@
 -- One line per re-scoring run: how many runs loaded, how many usable, and how much drift.
---   bq query --use_legacy_sql=false --parameter=run_id::<RUN_ID> "$(cat bq/run_totals.sql)"
+--   bq query --use_legacy_sql=false --parameter=run_id::<RUN_ID> "$(sed '/^--/d' bq/run_totals.sql)"
 SELECT
   COUNT(*) AS runs,
   COUNTIF(usable) AS usable,

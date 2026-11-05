@@ -33,6 +33,7 @@ def fake_research(root: Path, body: str) -> Path:
     """A research checkout whose scripts/run_audit.py is the given Python body."""
     (root / "scripts").mkdir(parents=True)
     (root / "reports" / "reference_metrics").mkdir(parents=True)
+    (root / "eval" / "results").mkdir(parents=True)
     (root / "scripts" / "run_audit.py").write_text(textwrap.dedent(body), encoding="utf-8")
     return root
 
@@ -147,10 +148,10 @@ def test_rescore_runs_score_only_against_output_root(tmp_path):
     (out_root / "outputs" / "raw").mkdir(parents=True)
     write_parquet(out_root / "outputs" / "raw" / "a.parquet", [0.1, 0.2])
 
-    result = T.rescore({"run": "a", "config_path": "configs/a.yaml"}, research, out_root,
-                       tmp_path / "results")
+    result, returncode = T.rescore({"run": "a", "config_path": "configs/a.yaml"}, research,
+                                   out_root, tmp_path / "results")
 
-    assert result == tmp_path / "results" / "a.json"
+    assert (result, returncode) == (tmp_path / "results" / "a.json", 0)
     assert json.loads(result.read_text())["config"] == "configs/a.yaml"
 
 
@@ -176,14 +177,91 @@ def test_stale_reference_row_not_published(tmp_path):
     """)
     (research / "reports" / "reference_metrics" / "a.json").write_text('{"stale": true}')
 
-    result = T.rescore({"run": "a", "config_path": "c.yaml"}, research, tmp_path / "o",
-                       tmp_path / "res")
+    result, _ = T.rescore({"run": "a", "config_path": "c.yaml"}, research, tmp_path / "o",
+                          tmp_path / "res")
     T.publish("a", result, research, tmp_path / "dest", {"run": "a"})
 
     assert not (tmp_path / "dest" / "reference_metrics.json").exists()
 
 
+def scoring_that_writes(parse_failure_rate: float, exit_code: int) -> str:
+    return f"""
+        import json, sys
+        from pathlib import Path
+        args = sys.argv[1:]
+        results = Path(args[args.index("--results-dir") + 1])
+        results.mkdir(parents=True, exist_ok=True)
+        summary = {{"parse_failure_rate": {parse_failure_rate}}}
+        (results / "a.json").write_text(json.dumps({{"summary": summary}}))
+        sys.exit({exit_code})
+    """
+
+
+def test_unusable_run_is_returned_with_its_exit_code(tmp_path):
+    # run_audit.py writes the record and then exits 1 when over half the responses did not
+    # parse. That record is the study's result for the run, so it is published, not retried.
+    research = fake_research(tmp_path / "research", scoring_that_writes(0.9999, 1))
+    result, returncode = T.rescore({"run": "a", "config_path": "c.yaml"}, research,
+                                   tmp_path / "o", tmp_path / "res")
+    assert returncode == 1
+    assert json.loads(result.read_text())["summary"]["parse_failure_rate"] == 0.9999
+
+
+def test_failure_after_a_usable_record_still_raises(tmp_path):
+    research = fake_research(tmp_path / "research", scoring_that_writes(0.1, 1))
+    with pytest.raises(T.RescoreFailed):
+        T.rescore({"run": "a", "config_path": "c.yaml"}, research, tmp_path / "o",
+                  tmp_path / "res")
+
+
+def test_results_dir_seeded_with_committed_records_except_this_run(tmp_path):
+    # reference_metrics pairs a mitigated run with its baseline by reading --results-dir.
+    # This run's own committed record must not be there, or a failed scoring could hand it
+    # back as the fresh one.
+    research = fake_research(tmp_path / "research", """
+        import sys
+        from pathlib import Path
+        args = sys.argv[1:]
+        results = Path(args[args.index("--results-dir") + 1])
+        assert (results / "base.json").read_text() == '{"run_name": "base"}'
+        assert not (results / "a.json").exists()
+        (results / "a.json").write_text("{}")
+    """)
+    (research / "eval" / "results" / "base.json").write_text('{"run_name": "base"}')
+    (research / "eval" / "results" / "a.json").write_text('{"committed": true}')
+
+    result, returncode = T.rescore({"run": "a", "config_path": "c.yaml"}, research,
+                                   tmp_path / "o", tmp_path / "res")
+
+    assert returncode == 0 and result.read_text() == "{}"
+
+
 # --- publishing --------------------------------------------------------------------------
+
+def test_publish_clears_old_provenance_before_writing(tmp_path, monkeypatch):
+    # Re-executing a RUN_ID writes over an earlier attempt. If this attempt dies before its
+    # own provenance.json, the old one must not make the half-written run look complete.
+    research = fake_research(tmp_path / "research", "")
+    dest = tmp_path / "dest"
+    dest.mkdir()
+    (dest / "provenance.json").write_text('{"image_ref": "old"}')
+    (dest / "reference_metrics.json").write_text('{"old": true}')
+    result = tmp_path / "a.json"
+    result.write_text("{}")
+    real = T._write_bytes
+
+    def dies_at_provenance(path, data):
+        if path.name == "provenance.json":
+            raise OSError("killed")
+        real(path, data)
+
+    monkeypatch.setattr(T, "_write_bytes", dies_at_provenance)
+    with pytest.raises(OSError):
+        T.publish("a", result, research, dest, {"run": "a"})
+
+    assert not (dest / "provenance.json").exists()
+    assert not (dest / "reference_metrics.json").exists()
+
 
 def test_publish_writes_provenance_last(tmp_path, monkeypatch):
     research = fake_research(tmp_path / "research", "")
@@ -247,10 +325,11 @@ def test_main_publishes_layout_and_provenance(tmp_path, monkeypatch, fake_hub):
                                                       "reference_metrics.json", "result.json"]
     prov = json.loads((dest / "provenance.json").read_text())
     assert {k: prov[k] for k in ("run_id", "run", "task_index", "task_attempt", "execution",
-                                 "hf_repo", "hf_revision", "research_commit", "image_ref")} == {
+                                 "hf_repo", "hf_revision", "research_commit", "image_ref",
+                                 "run_audit_returncode")} == {
         "run_id": "test-1", "run": "a", "task_index": 0, "task_attempt": 0,
         "execution": "local", "hf_repo": "org/ds", "hf_revision": "rev",
-        "research_commit": "abc", "image_ref": "img@sha"}
+        "research_commit": "abc", "image_ref": "img@sha", "run_audit_returncode": 0}
     assert {"started_at", "finished_at", "seconds"} <= prov.keys()
 
 

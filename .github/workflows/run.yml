@@ -60,8 +60,8 @@ jobs:
             echo "## Re-scoring run \`$RUN_ID\`"
             echo '```'
             bq query --use_legacy_sql=false --format=pretty --parameter="run_id::$RUN_ID" \
-              "$(cat bq/run_totals.sql)"
+              "$(sed '/^--/d' bq/run_totals.sql)"
             bq query --use_legacy_sql=false --format=pretty --parameter="run_id::$RUN_ID" \
-              "$(cat bq/drift_summary.sql)"
+              "$(sed '/^--/d' bq/drift_summary.sql)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

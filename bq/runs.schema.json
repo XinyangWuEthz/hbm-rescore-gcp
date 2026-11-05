@@ -11,6 +11,7 @@
   {"name": "started_at", "type": "TIMESTAMP", "mode": "NULLABLE"},
   {"name": "finished_at", "type": "TIMESTAMP", "mode": "NULLABLE"},
   {"name": "seconds", "type": "FLOAT", "mode": "NULLABLE"},
+  {"name": "run_audit_returncode", "type": "INTEGER", "mode": "NULLABLE"},
   {"name": "model", "type": "STRING", "mode": "NULLABLE"},
   {"name": "lang", "type": "STRING", "mode": "NULLABLE"},
   {"name": "family", "type": "STRING", "mode": "NULLABLE"},

@@ -28,7 +28,8 @@ def provenance_of(run: str, run_id: str = "rid") -> dict:
             "execution": "rescore-x", "hf_repo": "org/ds", "hf_revision": "rev",
             "research_commit": "abc", "image_ref": "img@sha",
             "started_at": "2026-11-05T10:00:00+00:00",
-            "finished_at": "2026-11-05T10:00:05+00:00", "seconds": 5.0}
+            "finished_at": "2026-11-05T10:00:05+00:00", "seconds": 5.0,
+            "run_audit_returncode": 0}
 
 
 def publish_run(run_root: Path, run: str, result: dict, with_provenance: bool = True) -> None:
@@ -228,6 +229,34 @@ def test_main_without_dataset_writes_tables_only(tmp_path, monkeypatch, two_runs
 
     assert C.main() == 0
     assert (two_runs / "_tables" / "runs.jsonl").exists()
+
+
+def rewrite_provenance(run_root: Path, run: str, **changes) -> None:
+    path = run_root / run / "provenance.json"
+    path.write_text(json.dumps({**json.loads(path.read_text()), **changes}))
+
+
+def test_mixed_images_in_one_run_id_refused(tmp_path, monkeypatch, two_runs, capsys):
+    # A RUN_ID re-executed after a deploy holds runs scored by two images; comparing them
+    # as one run would mix code versions.
+    collect_env(monkeypatch, tmp_path, ["a", "b"])
+    rewrite_provenance(two_runs, "b", image_ref="img@other")
+    use_client(monkeypatch, FakeClient())
+
+    assert C.main() == 1
+    assert not (two_runs / "_tables").exists()
+    err = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert err["error"] == "ProvenanceMismatch" and "img@other" in err["message"]
+
+
+def test_provenance_must_match_manifest_pins(tmp_path, monkeypatch, two_runs, capsys):
+    collect_env(monkeypatch, tmp_path, ["a", "b"])
+    rewrite_provenance(two_runs, "a", research_commit="zzz")
+    use_client(monkeypatch, FakeClient())
+
+    assert C.main() == 1
+    err = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert err["error"] == "ProvenanceMismatch" and "zzz" in err["message"]
 
 
 def test_incomplete_run_fails_before_writing(tmp_path, monkeypatch):

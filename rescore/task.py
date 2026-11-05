@@ -32,6 +32,10 @@ from rescore.manifest import load_manifest
 #: the manifest resolves `raw_dir` to this (checked 2026-11-05 for all 64).
 RAW_SUBDIR = Path("outputs") / "raw"
 STDERR_TAIL_CHARS = 4000
+#: run_audit.py writes the record and then exits 1 above this share of unparsable responses
+#: (`MAX_PARSE_FAILURE`, src/hiring_bias_mitigation/eval/audit.py at 7e17753). Such a run is
+#: the study's result, marked unusable, not a failed task.
+PARSE_FAILURE_ABORT = 0.5
 
 
 class TaskCountMismatch(ValueError):
@@ -124,19 +128,43 @@ def _has_number(column) -> bool:
     return bool(pc.any(pc.invert(pc.is_nan(column.cast("double")))).as_py())
 
 
-def rescore(entry: dict, research_dir: Path, output_root: Path, results_dir: Path) -> Path:
+def _seed_results(research_dir: Path, results_dir: Path, run: str) -> None:
+    """Copies the committed records except this run's into results_dir.
+
+    reference_metrics finds a mitigated run's baseline by reading --results-dir. This run's
+    own committed record stays out, so the file scoring leaves behind is always fresh.
+    """
+    results_dir.mkdir(parents=True, exist_ok=True)
+    for record in sorted((research_dir / "eval" / "results").glob("*.json")):
+        if record.name != f"{run}.json":
+            shutil.copyfile(record, results_dir / record.name)
+
+
+def _unusable(result: Path) -> bool:
+    if not result.is_file():
+        return False
+    rate = json.loads(result.read_text(encoding="utf-8")).get("summary", {}).get(
+        "parse_failure_rate")
+    return isinstance(rate, int | float) and rate > PARSE_FAILURE_ABORT
+
+
+def rescore(entry: dict, research_dir: Path, output_root: Path,
+            results_dir: Path) -> tuple[Path, int]:
+    """Returns the fresh record and run_audit.py's exit code (0, or 1 for an unusable run)."""
     run = entry["run"]
     # The image ships the research repository's committed rows. Remove this run's, so the
     # row published afterwards can only be one that this scoring wrote.
     (research_dir / "reports" / "reference_metrics" / f"{run}.json").unlink(missing_ok=True)
+    _seed_results(research_dir, results_dir, run)
     cmd = [sys.executable, "scripts/run_audit.py", "--config", entry["config_path"],
            "--score-only", "--results-dir", str(results_dir)]
     env = {**os.environ, "HBM_OUTPUT_ROOT": str(output_root)}
     proc = subprocess.run(cmd, cwd=research_dir, env=env, capture_output=True, text=True,
                           check=False)
-    if proc.returncode != 0:
+    result = results_dir / f"{run}.json"
+    if proc.returncode != 0 and not (proc.returncode == 1 and _unusable(result)):
         raise RescoreFailed(proc.returncode, proc.stderr[-STDERR_TAIL_CHARS:])
-    return results_dir / f"{run}.json"
+    return result, proc.returncode
 
 
 def _write_bytes(path: Path, data: bytes) -> None:
@@ -146,6 +174,11 @@ def _write_bytes(path: Path, data: bytes) -> None:
 def publish(run: str, result_json: Path, research_dir: Path, dest_dir: Path,
             provenance: dict) -> None:
     dest_dir.mkdir(parents=True, exist_ok=True)
+    # An earlier attempt for this RUN_ID may have left these. Until this attempt writes its
+    # own provenance.json the run must read as incomplete, and an old reference row must
+    # never sit next to a new result.
+    (dest_dir / "provenance.json").unlink(missing_ok=True)
+    (dest_dir / "reference_metrics.json").unlink(missing_ok=True)
     _write_bytes(dest_dir / "result.json", result_json.read_bytes())
     row = research_dir / "reports" / "reference_metrics" / f"{run}.json"
     if row.is_file():
@@ -183,14 +216,18 @@ def main() -> int:
             parquet = fetch_inputs(entry, manifest["hf_repo"], manifest["hf_revision"],
                                    work / RAW_SUBDIR)
             assert_similarity_cached(parquet)
-            result = rescore(entry, research_dir, work, work / "results")
+            result, returncode = rescore(entry, research_dir, work, work / "results")
+            if returncode:
+                log_event("WARNING", "scored, but run_audit.py marks the run unusable",
+                          run_id=run_id, run_audit_returncode=returncode, **context)
             provenance = {"run_id": run_id, "run": run, **context,
                           "hf_repo": manifest["hf_repo"],
                           "hf_revision": manifest["hf_revision"],
                           "research_commit": manifest["research_commit"],
                           "image_ref": os.environ.get("IMAGE_REF", "unknown"),
                           "started_at": started, "finished_at": _now(),
-                          "seconds": round(time.monotonic() - t0, 3)}
+                          "seconds": round(time.monotonic() - t0, 3),
+                          "run_audit_returncode": returncode}
             publish(run, result, research_dir, output_dir / "runs" / run_id / run, provenance)
         log_event("INFO", "published", run_id=run_id, seconds=provenance["seconds"], **context)
         return 0
