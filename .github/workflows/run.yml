@@ -1,0 +1,67 @@
+# Manually triggered: re-score all 64 runs (or a named subset), then collect them into
+# BigQuery and print the drift summary to the run's summary page.
+name: run
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_subset:
+        description: "Comma-separated run names. Empty re-scores all 64."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: run
+  cancel-in-progress: false
+
+env:
+  REGION: us-central1
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+      - name: Re-score
+        env:
+          RUN_SUBSET: ${{ inputs.run_subset }}
+        run: |
+          RUN_ID="gha-$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          # `^@^` switches gcloud's list delimiter to @, because RUN_SUBSET contains commas.
+          args=(--region "$REGION" --wait --update-env-vars "^@^RUN_ID=$RUN_ID@RUN_SUBSET=$RUN_SUBSET")
+          if [ -n "$RUN_SUBSET" ]; then
+            n=$(tr ',' '\n' <<< "$RUN_SUBSET" | grep -c '[^[:space:]]')
+            args+=(--tasks "$n")
+          fi
+          gcloud run jobs execute rescore "${args[@]}"
+      - name: Collect into BigQuery
+        env:
+          RUN_SUBSET: ${{ inputs.run_subset }}
+        run: |
+          gcloud run jobs execute collect --region "$REGION" --wait \
+            --update-env-vars "^@^RUN_ID=$RUN_ID@RUN_SUBSET=$RUN_SUBSET"
+      - name: Summary
+        run: |
+          {
+            echo "## Re-scoring run \`$RUN_ID\`"
+            echo '```'
+            bq query --use_legacy_sql=false --format=pretty --parameter="run_id::$RUN_ID" \
+              "$(sed '/^--/d' bq/run_totals.sql)"
+            bq query --use_legacy_sql=false --format=pretty --parameter="run_id::$RUN_ID" \
+              "$(sed '/^--/d' bq/drift_summary.sql)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

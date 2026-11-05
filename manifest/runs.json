@@ -1,0 +1,455 @@
+{
+  "hf_repo": "Stereotypes-in-LLMs/hiring-bias-mitigation-responses",
+  "hf_revision": "f6a03e2c1e67663a1d1e344a90dbe5d40af49212",
+  "research_commit": "7e177532f2240d6a10cd76ed300e8c379123297f",
+  "runs": [
+    {
+      "index": 0,
+      "run": "Qwen3.5-4B--en--baseline",
+      "config_path": "configs/audit/qwen3.5-4b_en_baseline.yaml",
+      "parquet_sha256": "9ebee7255140f357d8df57f5ff049432a19ad8266299d47d4f8c2ff555c844ba",
+      "parquet_bytes": 7535447
+    },
+    {
+      "index": 1,
+      "run": "Qwen3.5-4B--en--embedding--leace",
+      "config_path": "configs/mitigation/embedding/qwen3.5-4b_en_leace.yaml",
+      "parquet_sha256": "505ec84e7a72ddd9df11906be3ca0cca73c665b2d0536e82bbc3ecb5ac23223b",
+      "parquet_bytes": 1452785
+    },
+    {
+      "index": 2,
+      "run": "Qwen3.5-4B--en--prompt--counterfactual_invariance",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_en_counterfactual_invariance.yaml",
+      "parquet_sha256": "6e5412883d58a1973331d2c8e53d71bd0717f02a80064f09cc12f188d1103cfa",
+      "parquet_bytes": 1333517
+    },
+    {
+      "index": 3,
+      "run": "Qwen3.5-4B--en--prompt--fairness_constitution",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_en_fairness_constitution.yaml",
+      "parquet_sha256": "3a418503ab415d1f9ccd208dd5e2b3e868a80d735b9d6d1963412f212af5f56a",
+      "parquet_bytes": 1111306
+    },
+    {
+      "index": 4,
+      "run": "Qwen3.5-4B--en--prompt--ignore_personal_info",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_en_ignore_personal_info.yaml",
+      "parquet_sha256": "dc7f510c013c0294dcee974b0058c3ce2e99f2fb16e93fde13197dbf36e567d2",
+      "parquet_bytes": 1182277
+    },
+    {
+      "index": 5,
+      "run": "Qwen3.5-4B--en--prompt--reasoning",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_en_reasoning.yaml",
+      "parquet_sha256": "44a47362ad84be308f674d7165916525e95ba4054f7667e85948aefb3322752a",
+      "parquet_bytes": 1558108
+    },
+    {
+      "index": 6,
+      "run": "Qwen3.5-4B--en--prompt--recruiter_guidelines",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_en_recruiter_guidelines.yaml",
+      "parquet_sha256": "ca89dc8269083c6dcf5e0f622b7ce40277952f6d6c03a115999a3a865a80533b",
+      "parquet_bytes": 1309428
+    },
+    {
+      "index": 7,
+      "run": "Qwen3.5-4B--en--prompt--second_pass_verification",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_en_second_pass_verification.yaml",
+      "parquet_sha256": "981d3a1801301728d2dab0495bbb139f55c1a7fa3457acea985c081d64fea895",
+      "parquet_bytes": 1578376
+    },
+    {
+      "index": 8,
+      "run": "Qwen3.5-4B--en--prompt--structured_rubric",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_en_structured_rubric.yaml",
+      "parquet_sha256": "5ff0f7c14fdc3ccbd0118dc4634d337894a7d9a30bd58ba23a700ab88712ec47",
+      "parquet_bytes": 1427713
+    },
+    {
+      "index": 9,
+      "run": "Qwen3.5-4B--en--prompt--zero_shot_cot",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_en_zero_shot_cot.yaml",
+      "parquet_sha256": "13c019b0715b0abf041b14f63c003b7470d6d5f221675dfd89f1c3cba1239110",
+      "parquet_bytes": 1459128
+    },
+    {
+      "index": 10,
+      "run": "Qwen3.5-4B--en--scrub--lexical",
+      "config_path": "configs/mitigation/scrub/qwen3.5-4b_en_lexical.yaml",
+      "parquet_sha256": "1b943fe3cc6bd4948154686965a19f26a601198a86349d3a2c3b086a4bb3fc27",
+      "parquet_bytes": 582846
+    },
+    {
+      "index": 11,
+      "run": "Qwen3.5-4B--en--scrub--llm",
+      "config_path": "configs/mitigation/scrub/qwen3.5-4b_en_llm.yaml",
+      "parquet_sha256": "64fce22dce503381ea8df9f13739c3e0d0162800c5471ff13ac1099e3137244a",
+      "parquet_bytes": 1644653
+    },
+    {
+      "index": 12,
+      "run": "Qwen3.5-4B--en--sft--adapter--en_only",
+      "config_path": "configs/audit/qwen3.5-4b_en_sft_en_only.yaml",
+      "parquet_sha256": "f73d4647be1fc223786975e6de9465ad1df0abbc5fae1858aea769f2e4a0d4cb",
+      "parquet_bytes": 1118400
+    },
+    {
+      "index": 13,
+      "run": "Qwen3.5-4B--uk--baseline",
+      "config_path": "configs/audit/qwen3.5-4b_uk_baseline.yaml",
+      "parquet_sha256": "848402b0da59e8c9c77bf407a8c40c692f1312a65f08464cfe49bccce8932056",
+      "parquet_bytes": 9904494
+    },
+    {
+      "index": 14,
+      "run": "Qwen3.5-4B--uk--embedding--leace",
+      "config_path": "configs/mitigation/embedding/qwen3.5-4b_uk_leace.yaml",
+      "parquet_sha256": "048e260c5425ac6c15439638958819ef24bad64d77e531ceac280452cdf30ef5",
+      "parquet_bytes": 1749939
+    },
+    {
+      "index": 15,
+      "run": "Qwen3.5-4B--uk--prompt--counterfactual_invariance",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_uk_counterfactual_invariance.yaml",
+      "parquet_sha256": "b5affb239d9d78b4bbcd4070d383328a24eb74e1ddbe9efa5a21c50de5f65578",
+      "parquet_bytes": 3152325
+    },
+    {
+      "index": 16,
+      "run": "Qwen3.5-4B--uk--prompt--fairness_constitution",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_uk_fairness_constitution.yaml",
+      "parquet_sha256": "b319b19f1312c18dd65ffcb9939c97ddb5963d474d705d840fe4a7b5b0b286ae",
+      "parquet_bytes": 2438246
+    },
+    {
+      "index": 17,
+      "run": "Qwen3.5-4B--uk--prompt--ignore_personal_info",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_uk_ignore_personal_info.yaml",
+      "parquet_sha256": "008187e9349fb0eb82f1250267bee9e8a0846277138f04ede6190196365c59b2",
+      "parquet_bytes": 2686193
+    },
+    {
+      "index": 18,
+      "run": "Qwen3.5-4B--uk--prompt--reasoning",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_uk_reasoning.yaml",
+      "parquet_sha256": "edf660c55553f75b34a8513c11de1c85388681aebc6602f2c7ff077c236593f4",
+      "parquet_bytes": 3707481
+    },
+    {
+      "index": 19,
+      "run": "Qwen3.5-4B--uk--prompt--recruiter_guidelines",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_uk_recruiter_guidelines.yaml",
+      "parquet_sha256": "6990cf5bc7634d0a7f048518c48b763664d43e9126c5b739b1bf7a0fc8b13415",
+      "parquet_bytes": 2647422
+    },
+    {
+      "index": 20,
+      "run": "Qwen3.5-4B--uk--prompt--second_pass_verification",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_uk_second_pass_verification.yaml",
+      "parquet_sha256": "c8d6bb05fb90afed37c96d2298d8c882f6e23af53745e9bf2ecac961e8be72ae",
+      "parquet_bytes": 2912758
+    },
+    {
+      "index": 21,
+      "run": "Qwen3.5-4B--uk--prompt--structured_rubric",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_uk_structured_rubric.yaml",
+      "parquet_sha256": "20b34c865be4ec0714b5d191e26eeab3ea38c22d766f240b915f7c517663593c",
+      "parquet_bytes": 3065922
+    },
+    {
+      "index": 22,
+      "run": "Qwen3.5-4B--uk--prompt--zero_shot_cot",
+      "config_path": "configs/mitigation/prompt/qwen3.5-4b_uk_zero_shot_cot.yaml",
+      "parquet_sha256": "142d4d786ca022c85dc3a65593de9bc2ba82a785022f522c73624b5608f9bcac",
+      "parquet_bytes": 2623680
+    },
+    {
+      "index": 23,
+      "run": "Qwen3.5-4B--uk--scrub--lexical",
+      "config_path": "configs/mitigation/scrub/qwen3.5-4b_uk_lexical.yaml",
+      "parquet_sha256": "584de1a9d70537430202a71cee9565643cfc93d8f7d0a23213f959e7265737bb",
+      "parquet_bytes": 701657
+    },
+    {
+      "index": 24,
+      "run": "Qwen3.5-4B--uk--scrub--llm",
+      "config_path": "configs/mitigation/scrub/qwen3.5-4b_uk_llm.yaml",
+      "parquet_sha256": "40cedbc89f34130f229aab64d76dd2fd62f2a63de949dd1d9d7eb64dbc271d42",
+      "parquet_bytes": 3648999
+    },
+    {
+      "index": 25,
+      "run": "Qwen3.5-4B--uk--sft--adapter--uk_only",
+      "config_path": "configs/audit/qwen3.5-4b_uk_sft_uk_only.yaml",
+      "parquet_sha256": "a2b1e76c61e352f6505e0e8d984dae91369f53615e998a5f9d56a93cc058d891",
+      "parquet_bytes": 1948172
+    },
+    {
+      "index": 26,
+      "run": "Qwen3.5-9B--en--baseline",
+      "config_path": "configs/audit/qwen3.5-9b_en_baseline.yaml",
+      "parquet_sha256": "bfb869070fe5ee076a7166d75d35f811ae9f9f4fa6045b21e0dffe3246b21a8a",
+      "parquet_bytes": 5901955
+    },
+    {
+      "index": 27,
+      "run": "Qwen3.5-9B--en--embedding--leace",
+      "config_path": "configs/mitigation/embedding/qwen3.5-9b_en_leace.yaml",
+      "parquet_sha256": "3111dab82d64128e843a286eb4e768d5ec772cef33fc72c0456354ad2ffdc90f",
+      "parquet_bytes": 642817
+    },
+    {
+      "index": 28,
+      "run": "Qwen3.5-9B--en--prompt--counterfactual_invariance",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_counterfactual_invariance.yaml",
+      "parquet_sha256": "234df29387b99266a8ee29f5ee0f905559dabda8a949478ad3e914a4c90c0dc0",
+      "parquet_bytes": 556785
+    },
+    {
+      "index": 29,
+      "run": "Qwen3.5-9B--en--prompt--fairness_constitution",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_fairness_constitution.yaml",
+      "parquet_sha256": "ea2fcb3739756d178dd72212bfd0023733f2726ecb21e4cf14add14739d39744",
+      "parquet_bytes": 570528
+    },
+    {
+      "index": 30,
+      "run": "Qwen3.5-9B--en--prompt--ignore_personal_info",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_ignore_personal_info.yaml",
+      "parquet_sha256": "d7910cb9fa57ca88e8286770e24b0e53ad912126d0d248a6082785a2212f262b",
+      "parquet_bytes": 574783
+    },
+    {
+      "index": 31,
+      "run": "Qwen3.5-9B--en--prompt--ignore_personal_info--fullscope",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_ignore_personal_info_fullscope.yaml",
+      "parquet_sha256": "b7481ac80acce35716625acdf8de70e5f88f90ff4508c0fb4a69e3191b18fc13",
+      "parquet_bytes": 1454650
+    },
+    {
+      "index": 32,
+      "run": "Qwen3.5-9B--en--prompt--reasoning",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_reasoning.yaml",
+      "parquet_sha256": "7798bc3f1fdf6a64c420891ecd4c9701e719bd21c432c4d798cdfbfe63c18d09",
+      "parquet_bytes": 700038
+    },
+    {
+      "index": 33,
+      "run": "Qwen3.5-9B--en--prompt--recruiter_guidelines",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_recruiter_guidelines.yaml",
+      "parquet_sha256": "628d1db0b3a4f4332897130e318546b1f2306ba23518e2cf582f75fe9225f3a0",
+      "parquet_bytes": 588441
+    },
+    {
+      "index": 34,
+      "run": "Qwen3.5-9B--en--prompt--second_pass_verification",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_second_pass_verification.yaml",
+      "parquet_sha256": "0f1317f6c927a62c97ae5c0df22dc4414a1dffdeb2d6084284c4d10ef0ebf5a2",
+      "parquet_bytes": 620619
+    },
+    {
+      "index": 35,
+      "run": "Qwen3.5-9B--en--prompt--second_pass_verification--fullscope",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_second_pass_verification_fullscope.yaml",
+      "parquet_sha256": "776e2eb85e7974fd777c1596069be6e08eb470d1b3ffcda66d14cec0d80ff1fb",
+      "parquet_bytes": 2001731
+    },
+    {
+      "index": 36,
+      "run": "Qwen3.5-9B--en--prompt--structured_rubric",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_structured_rubric.yaml",
+      "parquet_sha256": "8e9dba256397ef67362211663a898e8f979e1224c22778d76cc615eb4cafe953",
+      "parquet_bytes": 612452
+    },
+    {
+      "index": 37,
+      "run": "Qwen3.5-9B--en--prompt--structured_rubric--fullscope",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_structured_rubric_fullscope.yaml",
+      "parquet_sha256": "a4e5c7d000361f97063121248f0a9a415bde3278f7e170af51d6d08a851ea0fc",
+      "parquet_bytes": 1940380
+    },
+    {
+      "index": 38,
+      "run": "Qwen3.5-9B--en--prompt--zero_shot_cot",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_en_zero_shot_cot.yaml",
+      "parquet_sha256": "0737c891f0c6bc3004399f57d5fc54399ae79d420aab4f587fe9f641657dd641",
+      "parquet_bytes": 600913
+    },
+    {
+      "index": 39,
+      "run": "Qwen3.5-9B--en--scrub--lexical",
+      "config_path": "configs/mitigation/scrub/qwen3.5-9b_en_lexical.yaml",
+      "parquet_sha256": "8fa46f8b71be10b318b72aac2b436057ede4b0e1082d2ddde267b1ec66b70954",
+      "parquet_bytes": 453985
+    },
+    {
+      "index": 40,
+      "run": "Qwen3.5-9B--en--scrub--llm",
+      "config_path": "configs/mitigation/scrub/qwen3.5-9b_en_llm.yaml",
+      "parquet_sha256": "77ddd89eabe3d7ba7a4867f6fcdef185d02a94d210d29bb0529002c2a9de62a3",
+      "parquet_bytes": 674912
+    },
+    {
+      "index": 41,
+      "run": "Qwen3.5-9B--en--sft--adapter--en_only",
+      "config_path": "configs/audit/qwen3.5-9b_en_sft_en_only.yaml",
+      "parquet_sha256": "5428020cffce02e2c235712833a0e0247df607a26b4f16dcc5c05186699e01f9",
+      "parquet_bytes": 909155
+    },
+    {
+      "index": 42,
+      "run": "Qwen3.5-9B--en--sft--adapter--en_only_v2_ckpt250",
+      "config_path": "configs/audit/qwen3.5-9b_en_sft_en_only_v2_ckpt250.yaml",
+      "parquet_sha256": "164e9d2f1d21933c4cfe63ef1cff518629601c21cde49c7f0520b6fa769cbfc2",
+      "parquet_bytes": 976891
+    },
+    {
+      "index": 43,
+      "run": "Qwen3.5-9B--uk--baseline",
+      "config_path": "configs/audit/qwen3.5-9b_uk_baseline.yaml",
+      "parquet_sha256": "a7a96e1ce35e5d03c2ad7897f3dc8c7146b4b0b3eb68939cde6040cab79cfc24",
+      "parquet_bytes": 8756411
+    },
+    {
+      "index": 44,
+      "run": "Qwen3.5-9B--uk--embedding--leace",
+      "config_path": "configs/mitigation/embedding/qwen3.5-9b_uk_leace.yaml",
+      "parquet_sha256": "5a24a2e77989e331af24a3779c6de0342395653d59ed35198c3d4bf53145a998",
+      "parquet_bytes": 2419409
+    },
+    {
+      "index": 45,
+      "run": "Qwen3.5-9B--uk--prompt--counterfactual_invariance",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_uk_counterfactual_invariance.yaml",
+      "parquet_sha256": "fc89a6ac2f200d10433e241cab3756e5c326a5ed1712cc332063b128e0c7e73e",
+      "parquet_bytes": 2481436
+    },
+    {
+      "index": 46,
+      "run": "Qwen3.5-9B--uk--prompt--fairness_constitution",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_uk_fairness_constitution.yaml",
+      "parquet_sha256": "e6a67273e871fd46d787c47aa0a73f0db535ecc9fb9abf09415dd2c0573375d2",
+      "parquet_bytes": 2382511
+    },
+    {
+      "index": 47,
+      "run": "Qwen3.5-9B--uk--prompt--ignore_personal_info",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_uk_ignore_personal_info.yaml",
+      "parquet_sha256": "51c44f935f168a97083307a494a9640fc72f86b562bb4889232d453e249a547e",
+      "parquet_bytes": 2322125
+    },
+    {
+      "index": 48,
+      "run": "Qwen3.5-9B--uk--prompt--reasoning",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_uk_reasoning.yaml",
+      "parquet_sha256": "f3a71717abf6331e26dbdbdc4ba2d7b7fcee9b84c1310bfe36b589f109764d8c",
+      "parquet_bytes": 3759848
+    },
+    {
+      "index": 49,
+      "run": "Qwen3.5-9B--uk--prompt--recruiter_guidelines",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_uk_recruiter_guidelines.yaml",
+      "parquet_sha256": "cf1f94ea1bf5d9c383a94c76a366c9705fbc8f2f9fb80e04716bc1b24dfb9989",
+      "parquet_bytes": 2523005
+    },
+    {
+      "index": 50,
+      "run": "Qwen3.5-9B--uk--prompt--second_pass_verification",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_uk_second_pass_verification.yaml",
+      "parquet_sha256": "12a23af0bfca146a26eed93578248fab7045eee2816650c3b9013da1e222fdf3",
+      "parquet_bytes": 3010095
+    },
+    {
+      "index": 51,
+      "run": "Qwen3.5-9B--uk--prompt--structured_rubric",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_uk_structured_rubric.yaml",
+      "parquet_sha256": "2e3cccaf6eec0b44512050b6ffe7ca46cd35848ec305ef4d0b5c7572c1e44a07",
+      "parquet_bytes": 2556743
+    },
+    {
+      "index": 52,
+      "run": "Qwen3.5-9B--uk--prompt--zero_shot_cot",
+      "config_path": "configs/mitigation/prompt/qwen3.5-9b_uk_zero_shot_cot.yaml",
+      "parquet_sha256": "36ee9c633f0148fae5cf36f1f7d0421134d0b2c1cdce0ae52535d05f93c32942",
+      "parquet_bytes": 2619193
+    },
+    {
+      "index": 53,
+      "run": "Qwen3.5-9B--uk--scrub--lexical",
+      "config_path": "configs/mitigation/scrub/qwen3.5-9b_uk_lexical.yaml",
+      "parquet_sha256": "0c5888863a71f3510521ed19b51b0f39bac3e1f1a2e2701856005e17267cdb2c",
+      "parquet_bytes": 652615
+    },
+    {
+      "index": 54,
+      "run": "Qwen3.5-9B--uk--scrub--llm",
+      "config_path": "configs/mitigation/scrub/qwen3.5-9b_uk_llm.yaml",
+      "parquet_sha256": "10ce54f070b810d92358b9eee45274aacf416b4ba71359c6786deccbb8411c77",
+      "parquet_bytes": 3072408
+    },
+    {
+      "index": 55,
+      "run": "Qwen3.5-9B--uk--sft--adapter--uk_only",
+      "config_path": "configs/audit/qwen3.5-9b_uk_sft_uk_only.yaml",
+      "parquet_sha256": "c2016885f86d92696c5fafc7eebd41fbb5a32e4c25fff75787280233d773f560",
+      "parquet_bytes": 1074454
+    },
+    {
+      "index": 56,
+      "run": "gemma-4-12B-it--en--baseline",
+      "config_path": "configs/audit/gemma-4-12b_en_baseline.yaml",
+      "parquet_sha256": "49ceb4fe341b972f98d79a4823190aa3135e989f046e247316c047e82e379cc2",
+      "parquet_bytes": 7387313
+    },
+    {
+      "index": 57,
+      "run": "gemma-4-12B-it--uk--baseline",
+      "config_path": "configs/audit/gemma-4-12b_uk_baseline.yaml",
+      "parquet_sha256": "e7f187fa27dea0fc5fa9b0051f82924f04dfc1d130cf59278c95e9c98a3dde54",
+      "parquet_bytes": 12444485
+    },
+    {
+      "index": 58,
+      "run": "gemma-4-E4B-it--en--baseline",
+      "config_path": "configs/audit/gemma-4-e4b_en_baseline.yaml",
+      "parquet_sha256": "b4c7eddd92a7876cbb4bb35199efd99b7ef7c8b58520ad0ab8fa2d785e5e6fdf",
+      "parquet_bytes": 4768820
+    },
+    {
+      "index": 59,
+      "run": "gemma-4-E4B-it--uk--baseline",
+      "config_path": "configs/audit/gemma-4-e4b_uk_baseline.yaml",
+      "parquet_sha256": "e412aa8f66ebf8fc8ea30e8359ba701b7fc20959ed2831077a1c9a9469271d59",
+      "parquet_bytes": 10028198
+    },
+    {
+      "index": 60,
+      "run": "lapa-v0.1.2-instruct--en--baseline",
+      "config_path": "configs/audit/lapa-12b_en_baseline.yaml",
+      "parquet_sha256": "bd8eb3c8186849e93f6ff6c38f6629ecda8d8eb8f7328cecccd6057ff8020db4",
+      "parquet_bytes": 5784680
+    },
+    {
+      "index": 61,
+      "run": "lapa-v0.1.2-instruct--en--sft--adapter--en_only",
+      "config_path": "configs/audit/lapa-12b_en_sft_en_only.yaml",
+      "parquet_sha256": "43806c05fecf55b174b7c69a8dc59915ab9ba9bfe29f06ee8eb0f50dea62b4ef",
+      "parquet_bytes": 877218
+    },
+    {
+      "index": 62,
+      "run": "lapa-v0.1.2-instruct--uk--baseline",
+      "config_path": "configs/audit/lapa-12b_uk_baseline.yaml",
+      "parquet_sha256": "a45692361ef65c3a7605553b9d437a8731dd3449b73dbceb30d337431748f746",
+      "parquet_bytes": 9909193
+    },
+    {
+      "index": 63,
+      "run": "lapa-v0.1.2-instruct--uk--sft--adapter--uk_only",
+      "config_path": "configs/audit/lapa-12b_uk_sft_uk_only.yaml",
+      "parquet_sha256": "b8ba9a806d56f292561520b6c7c41bf46d5efef3dcdd6fb26f45e856affad6ba",
+      "parquet_bytes": 953597
+    }
+  ]
+}

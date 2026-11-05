@@ -1,0 +1,43 @@
+# Lint, unit tests, and a byte-for-byte check of the container against the golden result.
+# Needs no GCP access. deploy.yml calls it before every deploy.
+name: ci
+
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements-dev.txt
+      - name: Lint
+        run: ruff check .
+      - name: Unit tests
+        run: pytest -q
+
+  image:
+    runs-on: ubuntu-24.04
+    needs: test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build
+        run: |
+          docker build --build-arg RESEARCH_COMMIT="$(jq -r .research_commit manifest/runs.json)" \
+            -t hbm-rescore:ci .
+      - name: Re-score the smallest run and compare with the golden result
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          docker run --rm -v "$RUNNER_TEMP/out:/out" -e RUN_ID=ci -e OUTPUT_DIR=/out \
+            -e RUN_SUBSET=Qwen3.5-9B--en--scrub--lexical \
+            -e CLOUD_RUN_TASK_INDEX=0 -e CLOUD_RUN_TASK_COUNT=1 hbm-rescore:ci
+          cmp tests/golden/Qwen3.5-9B--en--scrub--lexical.json \
+            "$RUNNER_TEMP/out/runs/ci/Qwen3.5-9B--en--scrub--lexical/result.json"
